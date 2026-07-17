@@ -1,0 +1,25 @@
+# Java
+backend/target/
+*.class
+*.jar
+*.war
+*.log
+
+# Maven
+backend/.mvn/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Node
+frontend/node_modules/
+frontend/dist/
+
+# Electron
+frontend/out/
+
+# OS
+.DS_Store
+Thumbs.db
