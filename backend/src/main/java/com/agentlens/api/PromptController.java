@@ -2,13 +2,16 @@ package com.agentlens.api;
 
 import com.agentlens.core.prompt.PromptService;
 import com.agentlens.core.prompt.PromptTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Prompt 模板管理接口。
- *
+ * <p>
  * 提供 Prompt 模板的增删改查 REST API。
  */
 @RestController
@@ -28,8 +31,13 @@ public class PromptController {
 
     @GetMapping("/{id}")
     public PromptTemplate getById(@PathVariable String id) {
-        // @claude [hint] 如果没找到，应该返回 404
-        return null; // TODO
+        Optional<PromptTemplate> templateOptional = promptService.findById(id);
+        if (templateOptional.isPresent()) {
+            return templateOptional.get();
+        } else {
+            //无法找到返回404
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
     }
 
     @PostMapping

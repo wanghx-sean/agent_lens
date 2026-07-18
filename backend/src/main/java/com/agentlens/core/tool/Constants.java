@@ -2,19 +2,22 @@ package com.agentlens.core.tool;
 
 /**
  * 常量定义工具类。
- *
+ * <p>
  * 集中管理项目中使用的常量，避免魔法值散落在各处。
  */
 public final class Constants {
 
     // 工具类禁止实例化
-    private Constants() {}
+    private Constants() {
+    }
 
     // ========== Prompt 版本相关 ==========
     /**
      * Prompt 模板版本号前缀
      */
     public static final String PROMPT_VERSION_FOMATE = "V";
+    public static final int PROMPT_VERSION_START_DEFINE = 0;
+    public static final int PROMPT_VERSION_START = 1;
 
     // ========== Token 估算相关 ==========
 

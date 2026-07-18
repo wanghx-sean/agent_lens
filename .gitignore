@@ -16,10 +16,12 @@ backend/.mvn/
 # Node
 frontend/node_modules/
 frontend/dist/
+frontend/dist-electron/
 
 # Electron
 frontend/out/
 
-# OS
+# Project files
+*.zip
 .DS_Store
 Thumbs.db

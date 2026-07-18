@@ -3,93 +3,83 @@
 ## 整体架构
 
 ```
-┌──────────────────────────┐     HTTP/REST      ┌──────────────────────────┐
-│   Vue 3 + Electron       │  ←──────────────→  │   Spring Boot 3         │
-│   (Presentation Layer)   │    WebSocket       │   (Agent Core Engine)   │
-│                          │                    │                         │
-│   ┌──────────────────┐   │                    │   ┌─────────────────┐   │
-│   │  Chat 面板        │   │                    │   │  LLM            │   │
-│   │  Prompt 面板      │   │                    │   │  Prompt         │   │
-│   │  Context 面板     │   │                    │   │  Context        │   │
-│   │  Memory 面板      │   │                    │   │  Memory         │   │
-│   │  Token 面板       │   │                    │   │  Tool           │   │
-│   │  Execution 面板   │   │                    │   │  Workflow       │   │
-│   └──────────────────┘   │                    │   └─────────────────┘   │
-└──────────────────────────┘                    └──────────────────────────┘
+┌──────────────────────────┐     REST/WebSocket    ┌──────────────────────────┐
+│   Vue 3 + Electron       │  ←──────────────────→ │   Spring Boot 3         │
+│   (Perspective UI)        │                       │   (Agent Engine)         │
+│                           │                       │                          │
+│   Workspace Perspective  │                       │   llm / prompt           │
+│   Agent Center           │                       │   context / memory       │
+│   Context Manager        │                       │   task / agent / diff    │
+│   Change Review          │                       │   tool / workflow        │
+│   Agent Monitor          │                       │                          │
+│   Knowledge Center       │                       │                          │
+│   Task Board             │                       │                          │
+└──────────────────────────┘                       └──────────────────────────┘
 ```
 
-## 分层职责
+## UI 架构（Perspective + Dock）
 
-### 前端 (Vue + Electron)
-
-- **Vue 3** — 组件化 UI
-- **Pinia** — 状态管理
-- **Vue Router** — 面板切换
-- **Axios** — 后端 API 调用
-- **Electron** — 桌面窗口封装
-
-### 后端 (Spring Boot 3)
-
-- **API 层** (`com.agentlens.api`) — REST Controller，前后端通信契约
-- **核心层** (`com.agentlens.core`) — Agent 核心逻辑
-  - `llm` — 大模型集成
-  - `prompt` — Prompt 模板管理
-  - `context` — 上下文管理
-  - `memory` — 记忆系统
-  - `tool` — 工具注册与调用
-  - `workflow` — 工作流编排
-- **配置层** (`com.agentlens.config`) — CORS、WebSocket 等配置
-
-## 前后端通信
-
-### REST API
-
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | /api/health | 健康检查 |
-| POST | /api/llm/chat | LLM 对话 |
-
-> 随开发进度扩展。
-
-### 数据流
+主界面采用 IDEA 风格的侧边工具窗口模式：
 
 ```
-User Input (Vue)
-  → POST /api/llm/chat
-    → LlmController
-      → LlmService.chat()
-        → [LlmTestService / 真实 LLM]
-    ← 响应
-  ← 渲染到 Chat 面板
++------------------------------------------------+
+| Menu Bar                                       |
++------------------------------------------------+
+| Toolbar (🤖 📋 🔍 📊 📚 📌)                   |
++------------------------------------------------+
+|        |                         |  [🤖] [📋]  |
+| Project|   Code Workspace        |  [🔍] [📊]  |
+|Explorer|                         |  [📚] [📌]  |
+|        |                         |  ← 工具按钮条 |
++--------+-------------------------+-------------+
+| Terminal / Task Log / Git                      |
++------------------------------------------------+
 ```
 
-## 包结构
+点击右侧按钮 → 停靠窗口以 Tab 形式展开。
+
+## 后端包结构
 
 ```
-backend/src/main/java/com/agentlens/
+com.agentlens/
 ├── AgentLensApplication.java    # 启动类
+├── config/WebConfig.java        # CORS 配置
 ├── api/
-│   ├── HealthController.java    # 健康检查
-│   └── LlmController.java       # LLM 对话 API
-├── config/
-│   └── WebConfig.java           # CORS 配置
+│   ├── HealthController.java    # GET /api/health
+│   ├── LlmController.java       # POST /api/llm/chat
+│   ├── PromptController.java    # CRUD /api/prompts
+│   ├── TaskController.java      # 🔜 CRUD /api/tasks
+│   ├── AgentController.java     # 🔜 /api/agents
+│   ├── DiffController.java      # 🔜 /api/diffs
+│   └── ContextController.java   # 🔜 /api/context
 └── core/
-    ├── llm/
-    │   ├── LlmService.java       # LLM 接口
-    │   ├── LlmTestService.java   # 测试实现
-    │   └── LlmConfig.java        # 配置模型
-    ├── prompt/
-    │   ├── PromptTemplate.java   # 模板定义
-    │   └── PromptRepository.java # 模板仓库
-    ├── context/
-    │   ├── ContextManager.java   # 上下文管理器
-    │   └── ContextItem.java      # 上下文项
-    ├── memory/
-    │   └── MemoryManager.java    # 记忆管理器
-    ├── tool/
-    │   ├── AgentTool.java        # 工具接口
-    │   └── ToolRegistry.java     # 工具注册中心
-    └── workflow/
-        ├── Workflow.java         # 工作流定义
-        └── WorkflowStep.java     # 工作流步骤
+    ├── llm/                     # LLM 集成层
+    ├── prompt/                  # Prompt 模板管理
+    ├── context/                 # 上下文管理
+    ├── memory/                  # 记忆管理
+    ├── task/                    # 任务管理（新）
+    ├── agent/                   # Agent 实例（新）
+    ├── diff/                    # Diff 审核（新）
+    ├── tool/                    # Tool Calling
+    └── workflow/                # 工作流编排
 ```
+
+## 新增模块说明
+
+| 模块 | 核心类 | 用途 |
+|------|--------|------|
+| task | AgentTask / TaskRepository / TaskService | 任务创建、状态流转、看板数据 |
+| agent | AgentInstance / AgentService | 多 Agent 状态追踪 |
+| diff | DiffEntry / DiffService | Agent 代码变更审核（Accept/Reject） |
+
+## 前端-后端对应关系
+
+| 前端 Perspective | 后端 API | 状态 |
+|---|---|---|
+| Workspace | 暂无（文件浏览后续） | ✅ 骨架 |
+| Agent Center | LlmController + TaskService | 🟡 待实现 |
+| Context Manager | ContextManager（需加 Controller） | 🔜 |
+| Change Review | DiffService | 🟡 骨架 |
+| Agent Monitor | AgentService | 🟡 骨架 |
+| Knowledge Center | MemoryService（需加 Controller） | 🔜 |
+| Task Board | TaskService | 🟡 骨架 |

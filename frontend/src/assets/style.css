@@ -1,4 +1,4 @@
-/* AgentLens 全局样式 */
+/* AgentLens 全局样式 — Catppuccin Mocha 主题 */
 
 * {
   margin: 0;
@@ -7,18 +7,29 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #1a1a2e;
-  color: #e0e0e0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'JetBrains Mono', Roboto, sans-serif;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+a {
+  color: #89b4fa;
+  text-decoration: none;
 }
 
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #16213e;
+  background: #181825;
 }
 ::-webkit-scrollbar-thumb {
-  background: #0f3460;
+  background: #45475a;
   border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #585b70;
 }
